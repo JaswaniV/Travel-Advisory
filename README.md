@@ -42,8 +42,8 @@ npm run preview
 
 ## Data sources
 
-- [REST Countries](https://restcountries.com) supplies country facts and flags.
-- [Travel Advisory API](https://www.travel-advisory.info/api) supplies advisory scores.
+- [countries.dev](https://countries.dev) supplies country facts and flags.
+- [Smartraveller advisory feed](https://smartraveller.kevle.xyz/api/advisories) supplies current advisory levels.
 
 The app presents advisory data as a useful starting point, not official travel advice. Check your government’s official travel guidance before booking or travelling.
 

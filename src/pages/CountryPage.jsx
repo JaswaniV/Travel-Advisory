@@ -32,6 +32,6 @@ export default function CountryPage({ favorites, onToggleFavorite }) {
     <div className="detail-hero"><img className="detail-flag" src={country.flags.svg} alt={`${country.name.common} flag`} /><div><p className="eyebrow">DESTINATION BRIEFING</p><h1>{country.name.common}</h1><p>{country.name.official}</p></div><button className={`watch-button ${isFavorite ? 'saved' : ''}`} onClick={() => onToggleFavorite(country.cca2)}>{isFavorite ? '★ Saved to watchlist' : '☆ Save to watchlist'}</button></div>
     <div className="advisory-panel"><div><p className="eyebrow">TRAVEL ADVISORY</p><AdvisoryBadge score={advisory?.score} /><h2>{meta.summary}</h2></div><div className={`score-orb ${meta.tone}`}>{advisory?.score?.toFixed(1) ?? '—'}<span>out of 5</span></div></div>
     <div className="detail-grid">{details.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</div>
-    <p className="data-note">Advisory scores are supplied by travel-advisory.info and are intended as a starting point. Always check official government guidance before travelling.</p>
+    <p className="data-note">Advisory levels are supplied by Smartraveller and are intended as a starting point. Always check official government guidance before travelling.</p>
   </section>;
 }

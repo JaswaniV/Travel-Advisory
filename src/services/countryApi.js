@@ -1,12 +1,24 @@
-const COUNTRY_API = 'https://restcountries.com/v3.1';
-const ADVISORY_API = 'https://www.travel-advisory.info/api';
+const COUNTRY_API = 'https://countries.dev';
+// The former travel-advisory.info endpoint currently presents an invalid TLS
+// certificate. This CORS-enabled public feed provides the same ISO alpha-2 lookup.
+const ADVISORY_API = 'https://smartraveller.kevle.xyz/api/advisories';
 
-const countryFields = 'name,cca2,flags,capital,region,subregion,population,languages,currencies';
-
-function countryUrl(path, params = {}) {
-  const url = new URL(`${COUNTRY_API}${path}`);
-  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
-  return url.toString();
+function normalizeCountry(country) {
+  return {
+    name: { common: country.name, official: country.name },
+    cca2: country.alpha2Code,
+    flags: country.flags,
+    capital: country.capital ? [country.capital] : [],
+    region: country.region,
+    subregion: country.subregion,
+    population: country.population,
+    languages: Object.fromEntries(
+      (country.languages || []).map((language) => [language.iso639_1, language.name]),
+    ),
+    currencies: Object.fromEntries(
+      (country.currencies || []).map((currency) => [currency.code, currency]),
+    ),
+  };
 }
 
 async function request(url) {
@@ -20,23 +32,31 @@ async function request(url) {
 }
 
 export async function searchCountries(query) {
-  const data = await request(countryUrl(`/name/${encodeURIComponent(query)}`, { fields: countryFields }));
-  return data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+  const data = await request(`${COUNTRY_API}/name/${encodeURIComponent(query)}`);
+  return data.map(normalizeCountry).sort((a, b) => a.name.common.localeCompare(b.name.common));
 }
 
 export async function getCountry(code) {
-  const data = await request(countryUrl(`/alpha/${encodeURIComponent(code)}`, { fields: countryFields }));
-  return Array.isArray(data) ? data[0] : data;
+  const data = await request(`${COUNTRY_API}/alpha/${encodeURIComponent(code)}`);
+  return normalizeCountry(data);
 }
 
 export async function getCountriesByCodes(codes) {
-  const data = await request(countryUrl('/alpha', { codes: codes.join(','), fields: countryFields }));
+  const data = await Promise.all(codes.map(getCountry));
   return data.sort((a, b) => a.name.common.localeCompare(b.name.common));
 }
 
 export async function getAdvisories() {
   const data = await request(ADVISORY_API);
   return Object.fromEntries(
-    Object.values(data.data).map((item) => [item.iso_alpha2, item]),
+    data.advisories.map((item) => [
+      item.country.alpha2,
+      {
+        score: item.level - 1,
+        message: item.latestUpdate,
+        updated: item.published,
+        source: item.pageUrl,
+      },
+    ]),
   );
 }
