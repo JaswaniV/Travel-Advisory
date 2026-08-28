@@ -8,6 +8,14 @@ export default [
   react.configs.flat.recommended,
   {
     plugins: { 'react-hooks': reactHooks },
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        fetch: 'readonly',
+        window: 'readonly',
+      },
+    },
+    settings: { react: { version: 'detect' } },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
